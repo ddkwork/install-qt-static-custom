@@ -16,32 +16,21 @@ jobs:
         include:
         - os: windows-latest
           os-caption: windows
-        - os: macos-latest
-          os-caption: macos
 
     runs-on: ${{matrix.os}}
 
     steps:
       - uses: actions/checkout@v4
-      - name: Find Qt version
-        shell: python
-        run: |
-          import re
-          import os
 
-          with open("action.yml") as f:
-            action_content = f.read()
-          match = re.search(r"VERSION_TAG: v([\d.]+)", action_content)
-          print("Found Qt version:", match[1])
-          with open(os.environ["GITHUB_ENV"], "a") as f:
-            f.write("QT_VERSION=" + match[1])
+        env:
+          QT_VERSION: 6.4
 
       - uses: seanmiddleditch/gha-setup-ninja@v5
       - name: Clone Qt repo
         run: |
           git clone https://code.qt.io/qt/qt5.git qt -b '${{env.QT_VERSION}}'
           cd qt
-          perl init-repository.pl -f --module-subset=qtbase,qtshadertools,qtmultimedia
+          perl init-repository.pl -f --module-subset=qtbase
 
       - name: Set up MSVC
         uses: ilammy/msvc-dev-cmd@v1
@@ -56,15 +45,6 @@ jobs:
           cd qt_build
           ..\qt\configure.bat -release -static -optimize-size -prefix "..\qt_static" -no-feature-accessibility
           cmake --build . --parallel 4
-          cmake --install .
-
-      - name: Build Qt (macOS)
-        if: contains(matrix.os, 'macos')
-        run: |
-          mkdir qt_build
-          cd qt_build
-          ../qt/configure -static -release -optimize-size -prefix "../qt_static" -no-feature-accessibility -- -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64"
-          cmake --build . --parallel 3
           cmake --install .
 
       - name: Package binaries
@@ -90,18 +70,8 @@ jobs:
       - uses: softprops/action-gh-release@v2
         with:
           files: release/*
-      - name: Find Qt version
-        shell: python
-        run: |
-          import re
-          import os
-
-          with open("action.yml") as f:
-            action_content = f.read()
-          match = re.search(r"VERSION_TAG: v([\d.]+)", action_content)
-          print("Found Qt version:", match[1])
-          with open(os.environ["GITHUB_ENV"], "a") as f:
-            f.write("QT_VERSION=" + match[1])
+        env:
+          QT_VERSION: 6.4
       - name: Shorthand tags
         run: |
           git config --global user.email "27856297+dependabot-preview[bot]@users.noreply.github.com"
