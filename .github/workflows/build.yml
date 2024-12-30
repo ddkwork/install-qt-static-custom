@@ -44,7 +44,7 @@ jobs:
         run: |
           mkdir qt_build
           cd qt_build
-          ..\qt\configure.bat -release -static -optimize-size -prefix "..\qt_static" -no-feature-accessibility
+          ..\qt\configure.bat -release -static -static-runtime -optimize-size -prefix "..\qt_static" -no-feature-accessibility
           cmake --build . --parallel 4
           cmake --install .
 
@@ -71,9 +71,9 @@ jobs:
       - uses: softprops/action-gh-release@v2
         with:
           files: release/*
+      - name: Shorthand tags
         env:
           QT_VERSION: 6.4
-      - name: Shorthand tags
         run: |
           git config --global user.email "27856297+dependabot-preview[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
