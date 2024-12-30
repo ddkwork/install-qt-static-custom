@@ -25,13 +25,13 @@ jobs:
       - uses: seanmiddleditch/gha-setup-ninja@v5
       - name: Clone Qt repo
         env:
-          QT_VERSION: dev
+          QT_VERSION: 6.4.2
 
         run: |
-               git clone https://code.qt.io/qt/qt5.git qt -b '${{env.QT_VERSION}}'
-               cd qt
-          #          perl init-repository -f --module-subset=qtbase
-               perl init-repository.pl -f --module-subset=qtbase #6.9
+          git clone https://code.qt.io/qt/qt5.git qt -b '${{env.QT_VERSION}}'
+          cd qt
+                    perl init-repository -f --module-subset=qtbase
+      #          perl init-repository.pl -f --module-subset=qtbase #6.9
 
       - name: Set up MSVC
         uses: ilammy/msvc-dev-cmd@v1
@@ -73,7 +73,7 @@ jobs:
           files: release/*
       - name: Shorthand tags
         env:
-          QT_VERSION: dev
+          QT_VERSION: 6.4.2
         run: |
           git config --global user.email "27856297+dependabot-preview[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
